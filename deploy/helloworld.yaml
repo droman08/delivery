@@ -1,0 +1,59 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: HTTP
+  name: helloworldservice
+  namespace: demo
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: helloworldservice
+          servicePort: 8071
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: helloworldservice
+  namespace: demo
+  labels:
+    ambiente: desa
+    tier: backend
+    app: helloworldservice
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8071
+      targetPort: 8080
+  selector:
+    app: helloworldservice
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: helloworldservice
+  namespace: demo
+  labels:
+    ambiente: desa
+    tier: backend
+    app: helloworldservice
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        ambiente: desa
+        tier: backend
+        app: helloworldservice
+    spec:
+      containers:
+        - image: gcr.io/hallowed-port-254901/itops:0.0.1-SNAPSHOT
+          imagePullPolicy: Always
+          name: helloworld-container
+          ports:
+            - containerPort: 8080
+              name: helloworld
+
